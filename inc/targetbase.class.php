@@ -1,37 +1,36 @@
 <?php
 /**
+ * ---------------------------------------------------------------------
+ * Formcreator is a plugin which allows creation of custom forms of
+ * easy access.
+ * ---------------------------------------------------------------------
  * LICENSE
  *
- * Copyright © 2011-2018 Teclib'
+ * This file is part of Formcreator.
  *
- * This file is part of Formcreator Plugin for GLPI.
- *
- * Formcreator is a plugin that allow creation of custom, easy to access forms
- * for users when they want to create one or more GLPI tickets.
- *
- * Formcreator Plugin for GLPI is free software: you can redistribute it and/or modify
+ * Formcreator is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * Formcreator Plugin for GLPI is distributed in the hope that it will be useful,
+ * Formcreator is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- * If not, see http://www.gnu.org/licenses/.
- * ------------------------------------------------------------------------------
+ * You should have received a copy of the GNU General Public License
+ * along with Formcreator. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
  * @author    Thierry Bugier
  * @author    Jérémy Moreau
- * @copyright Copyright © 2018 Teclib
- * @license   GPLv2 https://www.gnu.org/licenses/gpl2.txt
+ * @copyright Copyright © 2011 - 2018 Teclib'
+ * @license   GPLv3+ http://www.gnu.org/licenses/gpl.txt
  * @link      https://github.com/pluginsGLPI/formcreator/
+ * @link      https://pluginsglpi.github.io/formcreator/
  * @link      http://plugins.glpi-project.org/#/plugin/formcreator
- * ------------------------------------------------------------------------------
+ * ---------------------------------------------------------------------
  */
+
 if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access this file directly");
 }
@@ -218,7 +217,7 @@ abstract class PluginFormcreatorTargetBase extends CommonDBTM
                ]);
 
                if ($answer->isNewItem()) {
-                  continue;
+                  continue 2;
                } else {
                   $userIds = [$answer->getField('answer')];
                }
@@ -236,9 +235,9 @@ abstract class PluginFormcreatorTargetBase extends CommonDBTM
                ]);
 
                if ($answer->isNewItem()) {
-                  continue;
+                  continue 2;
                } else {
-                  $userIds = array_filter(explode(',', trim($answer->getField('answer'))));
+                  $userIds = json_decode($answer->fields['answer'], JSON_OBJECT_AS_ARRAY);
                }
                $notify = $actor['use_notification'];
                break;
@@ -275,7 +274,7 @@ abstract class PluginFormcreatorTargetBase extends CommonDBTM
          $userId = 0;
          $alternativeEmail = $user;
       } else {
-         $userId = intval($user);
+         $userId = (int) $user;
          $alternativeEmail = '';
          if ($userId == '0') {
             // there is no actor
@@ -741,7 +740,7 @@ EOS;
          ]);
          echo '</div>';
 
-         // Spécific tags
+         // Specific tags
          echo '<div id="tag_specific_value" style="display: none">';
 
          $obj = new PluginTagTag();
@@ -815,7 +814,7 @@ EOS;
                $content = str_replace('##answer_' . $id . '##', $value, $content);
             } else {
                if (strpos($content, '##answer_' . $id . '##') !== false) {
-                  $content = str_replace('##question_' . $id . '##', $name, $content);
+                  $content = str_replace('##question_' . $id . '##', addslashes($name), $content);
                   if ($value !== '') {
                      $content = str_replace('##answer_' . $id . '##', __('Attached document', 'formcreator'), $content);
 
@@ -902,5 +901,57 @@ JAVASCRIPT;
       echo '</div>';
       echo '</td>';
       echo '</tr>';
+   }
+
+   /**
+    * Sets the time to resolve of the target object
+    *
+    * @param array $data data of the target object
+    * @param PluginFormcreatorForm_Answer $formanswer    Answers previously saved
+    * @return array updated data of the target object
+    */
+   protected function setTargetDueDate($data, PluginFormcreatorForm_Answer $formanswer) {
+      global $DB;
+
+      $answer  = new PluginFormcreatorAnswer();
+      if ($this->fields['due_date_question'] !== null) {
+         $request = [
+            'FROM' => $answer::getTable(),
+            'WHERE' => [
+               'AND' => [
+                  $formanswer::getForeignKeyField() => $formanswer->fields['id'],
+                  PluginFormcreatorQuestion::getForeignKeyField() => $this->fields['due_date_question'],
+               ],
+            ],
+         ];
+         $iterator = $DB->request($request);
+         if ($iterator->count() > 0) {
+            $iterator->rewind();
+            $date   = $iterator->current();
+         }
+      } else {
+         $date = null;
+      }
+      $str    = "+" . $this->fields['due_date_value'] . " " . $this->fields['due_date_period'];
+
+      switch ($this->fields['due_date_rule']) {
+         case 'answer':
+            $due_date = $date['answer'];
+            break;
+         case 'ticket':
+            $due_date = date('Y-m-d H:i:s', strtotime($str));
+            break;
+         case 'calcul':
+            $due_date = date('Y-m-d H:i:s', strtotime($date['answer'] . " " . $str));
+            break;
+         default:
+            $due_date = null;
+            break;
+      }
+      if (!is_null($due_date)) {
+         $data['time_to_resolve'] = $due_date;
+      }
+
+      return $data;
    }
 }

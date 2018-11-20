@@ -1,4 +1,36 @@
 <?php
+/**
+ * ---------------------------------------------------------------------
+ * Formcreator is a plugin which allows creation of custom forms of
+ * easy access.
+ * ---------------------------------------------------------------------
+ * LICENSE
+ *
+ * This file is part of Formcreator.
+ *
+ * Formcreator is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * Formcreator is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Formcreator. If not, see <http://www.gnu.org/licenses/>.
+ * ---------------------------------------------------------------------
+ * @author    Thierry Bugier
+ * @author    Jérémy Moreau
+ * @copyright Copyright © 2011 - 2018 Teclib'
+ * @license   GPLv3+ http://www.gnu.org/licenses/gpl.txt
+ * @link      https://github.com/pluginsGLPI/formcreator/
+ * @link      https://pluginsglpi.github.io/formcreator/
+ * @link      http://plugins.glpi-project.org/#/plugin/formcreator
+ * ---------------------------------------------------------------------
+ */
+
 if (!defined('GLPI_ROOT')) {
    die("Sorry. You can't access this file directly");
 }
@@ -41,21 +73,20 @@ class PluginFormcreatorInstall {
       // All cases are run starting from the one matching the current schema version
       switch ($fromSchemaVersion) {
          case '0.0':
-         case '2.5':
-            //Any schema version below or equal 2.5
             require_once(__DIR__ . '/update_0.0_2.5.php');
             plugin_formcreator_update_2_5($this->migration);
 
-         case '2.6':
-            //Any schema version below or equal 2.6
+         case '2.5':
             require_once(__DIR__ . '/update_2.5_2.6.php');
             plugin_formcreator_update_2_6($this->migration);
 
+         case '2.6':
             require_once(__DIR__ . '/update_2.6_2.6.1.php');
             plugin_formcreator_update_2_6_1($this->migration);
 
             require_once(__DIR__ . '/update_2.6.2_2.6.3.php');
             plugin_formcreator_update_2_6_3($this->migration);
+
          default:
             // Must be the last case
             if ($this->endsWith(PLUGIN_FORMCREATOR_VERSION, "-dev")) {
@@ -114,7 +145,7 @@ class PluginFormcreatorInstall {
    }
 
    /**
-    * is the plugin already isntalled ?
+    * is the plugin already installed ?
     *
     * @return boolean
     */
@@ -394,7 +425,7 @@ class PluginFormcreatorInstall {
    protected function deleteTables() {
       global $DB;
 
-      // Keep  these itemtypes as string because classes might be not avaiable (if plugin is inactive)
+      // Keep  these itemtypes as string because classes might not be available (if plugin is inactive)
       $itemtypes = [
          'PluginFormcreatorAnswer',
          'PluginFormcreatorCategory',
@@ -439,7 +470,7 @@ class PluginFormcreatorInstall {
     * @param string $needle
     */
    protected function endsWith($haystack, $needle) {
-      // search forward starting from end minus needle length characters
+      // search foreward starting from end minus needle length characters
       return $needle === '' || (($temp = strlen($haystack) - strlen($needle)) >= 0 && strpos($haystack, $needle, $temp) !== false);
    }
 
