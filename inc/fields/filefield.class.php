@@ -61,12 +61,22 @@ class PluginFormcreatorFileField extends PluginFormcreatorField
          return true;
       }
 
-      if (is_array($_POST['_formcreator_field_' . $this->fields['id']])
-         && count($_POST['_formcreator_field_' . $this->fields['id']]) === 1) {
-         $file = current($_POST['_formcreator_field_' . $this->fields['id']]);
-         if (is_file(GLPI_TMP_DIR . '/' . $file)) {
-            return true;
+      if (is_array($_POST['_formcreator_field_' . $this->fields['id']])) {
+
+         $documents = $_POST['_formcreator_field_' . $this->fields['id']];
+
+         foreach ($documents as $document) {
+            $doc = Toolbox::stripslashes_deep($document);
+
+            if( !is_file(GLPI_TMP_DIR . '/' . $doc)  )
+            {
+               Session::addMessageAfterRedirect(__('A required file is missing:', 'formcreator') . ' ' . $this->fields['name'], false, ERROR);
+               return false;
+            }
          }
+
+         return true;
+         
       }
 
       Session::addMessageAfterRedirect(__('A required file is missing:', 'formcreator') . ' ' . $this->fields['name'], false, ERROR);

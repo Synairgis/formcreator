@@ -276,6 +276,20 @@ function plugin_formcreator_decode($string) {
 }
 
 /**
+ * Encode special chars
+ *
+ * @param  Array    $array  The array of strings to encode
+ * @return Array             New array with encoded string
+ */
+function plugin_formcreator_decode_deep($array)
+{
+   foreach($array as $index => $str)
+      $array[$index] = plugin_formcreator_decode($str);
+
+   return $array;
+}
+
+/**
  * Tells if helpdesk replacement is enabled for the current user
  */
 function plugin_formcreator_replaceHelpdesk() {

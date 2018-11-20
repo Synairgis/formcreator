@@ -817,13 +817,13 @@ EOS;
                   $content = str_replace('##question_' . $id . '##', addslashes($name), $content);
                   if ($value !== '') {
                      $content = str_replace('##answer_' . $id . '##', __('Attached document', 'formcreator'), $content);
-
-                     // keep the ID of the document
-                     $this->attachedDocuments[$value] = true;
                   } else {
                      $content = str_replace('##answer_' . $id . '##', '', $content);
                   }
                }
+
+               // keep the ID of the document
+               $this->attachedDocuments[$value] = true;
             }
          }
       }

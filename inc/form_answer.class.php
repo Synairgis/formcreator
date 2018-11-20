@@ -496,7 +496,7 @@ class PluginFormcreatorForm_Answer extends CommonDBChild
                           INNER JOIN `glpi_plugin_formcreator_sections` AS `sections`
                             ON `questions`.`plugin_formcreator_sections_id` = `sections`.`id`
                             AND `plugin_formcreator_forms_id` = " . $form->getID() . "
-                          GROUP BY `questions`.`id`
+                          GROUP BY `questions`.`id`, `answers`.`answer`
                           ORDER BY `sections`.`order` ASC,
                                    `sections`.`id` ASC,
                                    `questions`.`order` ASC";
@@ -650,19 +650,38 @@ class PluginFormcreatorForm_Answer extends CommonDBChild
 
                // $answer_value may be still null if the field type is file and no file was uploaded
                if ($answer_value !== null) {
-                  // Update the answer to the question
-                  $questionId = $question->getID();
-                  $answer = new PluginFormcreatorAnswer();
-                  $answer->getFromDBByCrit([
-                    'AND' => [
-                      'plugin_formcreator_forms_answers_id' => $formanswers_id,
-                      'plugin_formcreator_questions_id'     => $questionId
-                    ]
-                  ]);
-                  $answer->update([
-                     'id'     => $answer->getID(),
-                     'answer' => $answer_value,
-                  ], 0);
+
+                if (is_array($answer_value)) {
+                     foreach ($answer_value as $value) {
+                        // Update the answer to the question
+                        $questionId = $question->getID();
+                        $answer = new PluginFormcreatorAnswer();
+                        $answer->getFromDBByCrit([
+                              'AND' => [
+                                 'plugin_formcreator_forms_answers_id' => $formanswers_id,
+                                 'plugin_formcreator_questions_id'     => $questionId
+                              ]
+                        ]);
+                        $answer->update([
+                              'id'     => $answer->getID(),
+                              'answer' => $value,
+                        ], 0);
+                     }
+                  } else {
+                    // Update the answer to the question
+                    $questionId = $question->getID();
+                    $answer = new PluginFormcreatorAnswer();
+                    $answer->getFromDBByCrit([
+                      'AND' => [
+                        'plugin_formcreator_forms_answers_id' => $formanswers_id,
+                        'plugin_formcreator_questions_id'     => $questionId
+                      ]
+                    ]);
+                    $answer->update([
+                       'id'     => $answer->getID(),
+                       'answer' => $answer_value,
+                    ], 0);
+                  }
                }
             }
          }
@@ -714,15 +733,26 @@ class PluginFormcreatorForm_Answer extends CommonDBChild
             $answer_value = $this->transformAnswerValue($question, $data['formcreator_field_' . $question->getID()]);
 
             if ($answer_value !== null) {
-               // Save the answer to the question
-               $answer->add([
-                  'plugin_formcreator_forms_answers_id'  => $id,
-                  'plugin_formcreator_questions_id'      => $question->getID(),
-                  'answer'                               => $answer_value,
-               ], [], 0);
+
+              if (is_array($answer_value)) {
+                  foreach ($answer_value as $val) {
+                     // Save the answer to the question
+                     $answer->add([
+                        'plugin_formcreator_forms_answers_id'  => $id,
+                        'plugin_formcreator_questions_id'      => $question->getID(),
+                        'answer'                               => $val,
+                     ], [], 0);
+                  }
+               } else {
+                  // Save the answer to the question
+                 $answer->add([
+                    'plugin_formcreator_forms_answers_id'  => $id,
+                    'plugin_formcreator_questions_id'      => $question->getID(),
+                    'answer'                               => $answer_value,
+                 ], [], 0);
+               }
             }
          }
-
          $is_newFormAnswer = true;
       }
 
@@ -913,11 +943,15 @@ class PluginFormcreatorForm_Answer extends CommonDBChild
          } else {
             $answer_value = '';
          }
-      } else if (is_array($_POST['_formcreator_field_' . $question->getID()])
-                 && count($_POST['_formcreator_field_' . $question->getID()]) === 1) {
-         $file = current($_POST['_formcreator_field_' . $question->getID()]);
-         if (is_file(GLPI_TMP_DIR . '/' . $file)) {
-            $answer_value = $this->saveDocument($form, $question, $file);
+      } 
+      else if (isset($_POST['_formcreator_field_' . $question->getID()])) {
+         $documents = $_POST['_formcreator_field_' . $question->getID()];
+         foreach ($documents as $document) {
+            $doc = Toolbox::stripslashes_deep($document);
+            
+            if (is_file(GLPI_TMP_DIR . '/' . $doc)) {
+               $answer_value[] = $this->saveDocument($form, $question, $doc);
+            }
          }
       }
 
@@ -949,7 +983,7 @@ class PluginFormcreatorForm_Answer extends CommonDBChild
       if ($docID = $doc->add($file_data)) {
          $docID    = intval($docID);
          $table    = Document::getTable();
-         $filename = addslashes($file);
+         $filename = substr(addslashes($file), 23);
          $query    = "UPDATE `$table` SET `filename` = '$filename'
                       WHERE `id` = '$docID'";
          $DB->query($query);
@@ -1122,9 +1156,9 @@ class PluginFormcreatorForm_Answer extends CommonDBChild
             if ($disableRichText === false
                && (version_compare(PluginFormcreatorCommon::getGlpiVersion(), 9.4) >= 0 || $CFG_GLPI['use_rich_text']))
             {
-               $output .= '<h2>' . Toolbox::addslashes_deep($question_line['section_name']) . '</h2>';
+               $output .= '<h2>' . $question_line['section_name'] . '</h2>';
             } else {
-               $output .= $eol . Toolbox::addslashes_deep($question_line['section_name']) . $eol;
+               $output .= $eol . $question_line['section_name'] . $eol;
                $output .= '---------------------------------';
                $output .= $eol;
             }

@@ -46,7 +46,7 @@ class PluginFormcreatorSelectField extends PluginFormcreatorField
                   if (version_compare(GLPI_VERSION, '9.2.1') <= 0) {
                      $tab_values[Html::entities_deep($value)] = $value;
                   } else {
-                     $tab_values[$value] = $value;
+                     $tab_values[ plugin_formcreator_decode($value) ] = plugin_formcreator_decode($value);
                   }
                }
             }
@@ -55,8 +55,8 @@ class PluginFormcreatorSelectField extends PluginFormcreatorField
                $tab_values = ['' => '-----'] + $tab_values;
             }
             Dropdown::showFromArray('formcreator_field_' . $this->fields['id'], $tab_values, [
-               'value'     => static::IS_MULTIPLE ? '' : $this->getValue(),
-               'values'    => static::IS_MULTIPLE ? $this->getValue() : [],
+               'value'     => static::IS_MULTIPLE ? '' : plugin_formcreator_decode($this->getValue()),
+               'values'    => static::IS_MULTIPLE ? plugin_formcreator_decode_deep($this->getValue()) : [],
                'rand'      => $rand,
                'multiple'  => static::IS_MULTIPLE,
             ]);

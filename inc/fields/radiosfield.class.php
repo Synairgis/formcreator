@@ -45,11 +45,11 @@ class PluginFormcreatorRadiosField extends PluginFormcreatorField
             foreach ($values as $value) {
                if ((trim($value) != '')) {
                   $i++;
-                  $checked = ($this->getValue() == $value) ? ' checked' : '';
+                  $checked = (plugin_formcreator_decode($this->getValue()) == plugin_formcreator_decode($value)) ? ' checked' : '';
                   echo '<input type="radio" class="form-control"
                         name="formcreator_field_' . $this->fields['id'] . '"
                         id="formcreator_field_' . $this->fields['id'] . '_' . $i . '"
-                        value="' . addslashes($value) . '"' . $checked . ' /> ';
+                        value="' . htmlentities($value, ENT_QUOTES, 'utf-8') . '"' . $checked . ' /> ';
                   echo '<label for="formcreator_field_' . $this->fields['id'] . '_' . $i . '">';
                   echo $value;
                   echo '</label>';

@@ -48,7 +48,7 @@ class PluginFormcreatorCheckboxesField extends PluginFormcreatorField
                if ((trim($value) != '')) {
                   $i++;
                   $current_value = null;
-                  $current_value = $this->getValue();
+                  $current_value = plugin_formcreator_decode_deep($this->getValue());
                   echo "<div class='checkbox'>";
                   echo Html::getCheckbox(['title'         => htmlentities($value, ENT_QUOTES),
                                           'id'            => 'formcreator_field_'.$this->fields['id'].'_'.$i,
