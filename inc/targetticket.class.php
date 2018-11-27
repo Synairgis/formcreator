@@ -1131,7 +1131,7 @@ EOS;
       if (version_compare(PluginFormcreatorCommon::getGlpiVersion(), 9.4) >= 0 || $CFG_GLPI['use_rich_text']) {
          $data['content'] = htmlentities($data['content'], ENT_NOQUOTES);
       }
-      $data['content'] = Toolbox::addslashes_deep($data['content']);
+      // $data['content'] = Toolbox::addslashes_deep($data['content']);
       $data['_users_id_recipient'] = $_SESSION['glpiID'];
       $data['_tickettemplates_id'] = $this->fields['tickettemplates_id'];
 
@@ -1266,7 +1266,7 @@ EOS;
          $data = $this->assignedGroups + $data;
       }
 
-      $data['content'] = plugin_formcreator_decode($data['content']);
+      // $data['content'] = $DB->escape(plugin_formcreator_decode($data['content']));
 
       // Create the target ticket
       if (!$ticketID = $ticket->add($data)) {
@@ -1448,6 +1448,7 @@ EOS;
     */
    public static function import($targetitems_id = 0, $target_data = []) {
       $item = new self;
+      global $DB;
 
       $target_data['_skip_checks'] = true;
       $target_data['id'] = $targetitems_id;
@@ -1486,7 +1487,7 @@ EOS;
          $target_data['name'] = $target_data['title'];
       }
 
-      $target_data['name'] = plugin_formcreator_decode($target_data['name']);
+      // $target_data['name'] = $DB->escape(plugin_formcreator_decode($target_data['name']));
 
       // update target ticket
       $item->update($target_data);

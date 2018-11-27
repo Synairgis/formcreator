@@ -1274,6 +1274,7 @@ class PluginFormcreatorForm extends CommonDBTM
     * @return Boolean true if success, false otherwise.
     */
    public function duplicate() {
+      global $DB;
       $target              = new PluginFormcreatorTarget();
       $target_ticket       = new PluginFormcreatorTargetTicket();
       $target_change       = new PluginFormcreatorTargetChange();
@@ -1288,7 +1289,7 @@ class PluginFormcreatorForm extends CommonDBTM
 
       // Form data
       $form_datas              = $this->fields;
-      $form_datas['name']     .= ' [' . __('Duplicate', 'formcreator') . ']';
+      $form_datas['name']      = plugin_formcreator_decode($form_datas['name']) . ' [' . __('Duplicate', 'formcreator') . ']';
       $form_datas['is_active'] = 0;
 
       unset($form_datas['id'], $form_datas['uuid']);
@@ -1307,7 +1308,7 @@ class PluginFormcreatorForm extends CommonDBTM
                $row['uuid']);
 
          $row['plugin_formcreator_forms_id'] = $new_form_id;
-         $row['name'] = plugin_formcreator_decode($row['name']);
+         // $row['name'] = $DB->escape(plugin_formcreator_decode($row['name']));
 
          if (!$form_profile->add($row)) {
             return false;
@@ -1333,7 +1334,7 @@ class PluginFormcreatorForm extends CommonDBTM
 
          $sectionRow['plugin_formcreator_forms_id'] = $new_form_id;
          $sectionRow = Toolbox::addslashes_deep($sectionRow);
-         $sectionRow['name'] = plugin_formcreator_decode($sectionRow['name']);
+         // $sectionRow['name'] = $DB->escape(plugin_formcreator_decode($sectionRow['name']));
 
          if (!$new_sections_id = $form_section->add($sectionRow)) {
             return false;
@@ -1346,8 +1347,6 @@ class PluginFormcreatorForm extends CommonDBTM
                   $questionRow['uuid']);
             $questionRow['plugin_formcreator_sections_id'] = $new_sections_id;
             $questionRow = Toolbox::addslashes_deep($questionRow);
-
-            $questionRow['name'] = plugin_formcreator_decode($questionRow['name']);
 
             if (!$new_questions_id = $section_question->add($questionRow)) {
                return false;
@@ -1374,10 +1373,13 @@ class PluginFormcreatorForm extends CommonDBTM
 
       // Form targets
       $rows = $target->find("`plugin_formcreator_forms_id` = '$old_form_id'");
+
       foreach ($rows as $target_values) {
          unset($target_values['id'],
                $target_values['uuid']);
          $target_values['plugin_formcreator_forms_id'] = $new_form_id;
+
+         $target_values['name'] = $DB->escape($target_values['name']);
 
          if (!$target->add($target_values)) {
             return false;
@@ -1395,6 +1397,7 @@ class PluginFormcreatorForm extends CommonDBTM
                $update_target_ticket = $target_ticket->fields;
                $update_target_ticket['id'] = $new_target_item_id;
                unset($update_target_ticket['uuid']);
+
                foreach ($tab_questions as $id => $value) {
                   $update_target_ticket['name']    = str_replace('##question_' . $id . '##', '##question_' . $value . '##', $update_target_ticket['name']);
                   $update_target_ticket['name']    = str_replace('##answer_' . $id . '##', '##answer_' . $value . '##', $update_target_ticket['name']);
@@ -1432,6 +1435,7 @@ class PluginFormcreatorForm extends CommonDBTM
                $new_target_ticket = new PluginFormcreatorTargetTicket();
                $update_target_ticket['title'] = Toolbox::addslashes_deep($update_target_ticket['name']);
                $update_target_ticket['comment'] = Toolbox::addslashes_deep($update_target_ticket['comment']);
+
                if (!$new_target_ticket->update($update_target_ticket)) {
                   return false;
                }
@@ -1922,6 +1926,10 @@ class PluginFormcreatorForm extends CommonDBTM
             PluginFormcreatorForm_Validator::import($forms_id, $validator);
          }
       }
+
+
+      // print_r($form['_targets']);
+      // die("bonjour target");
 
       // import form's targets
       if ($forms_id
