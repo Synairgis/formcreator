@@ -1927,6 +1927,10 @@ class PluginFormcreatorForm extends CommonDBTM
          }
       }
 
+
+      // print_r($form['_targets']);
+      // die("bonjour target");
+
       // import form's targets
       if ($forms_id
           && isset($form['_targets'])) {

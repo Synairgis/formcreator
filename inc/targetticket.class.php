@@ -1133,6 +1133,7 @@ EOS;
          $data['content'] = htmlentities($data['content'], ENT_NOQUOTES);
       }
 
+      // $data['content'] = Toolbox::addslashes_deep($data['content']);
       $data['_users_id_recipient'] = $_SESSION['glpiID'];
       $data['_tickettemplates_id'] = $this->fields['tickettemplates_id'];
 
