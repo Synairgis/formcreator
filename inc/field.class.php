@@ -141,7 +141,11 @@ abstract class PluginFormcreatorField implements PluginFormcreatorFieldInterface
          if (!is_array($this->fields['answer']) && is_array(json_decode($this->fields['answer']))) {
             return json_decode($this->fields['answer']);
          }
-         return plugin_formcreator_decode ($this->fields['answer']);
+          if(is_array($this->fields['answer']))
+            return plugin_formcreator_decode_deep ($this->fields['answer']);
+          else
+            return plugin_formcreator_decode ($this->fields['answer']);
+
       } else {
          if (static::IS_MULTIPLE) {
             return explode("\r\n", $this->fields['default_values']);

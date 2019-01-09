@@ -278,9 +278,12 @@ class PluginFormcreatorSection extends CommonDBChild
     */
    public static function import($forms_id = 0, $section = []) {
       $item = new self;
+      global $DB;
 
       $section['plugin_formcreator_forms_id'] = $forms_id;
       $section['_skip_checks']                = true;
+
+      $section['name'] = $DB->escape(plugin_formcreator_decode($section['name']));
 
       if ($sections_id = plugin_formcreator_getFromDBByField($item, 'uuid', $section['uuid'])) {
          // add id key
@@ -305,7 +308,7 @@ class PluginFormcreatorSection extends CommonDBChild
          );
 
          foreach ($section['_questions'] as $question) {
-            $question['name'] = plugin_formcreator_decode($question['name']);
+            $question['name'] = $DB->escape(plugin_formcreator_decode($question['name']));
             PluginFormcreatorQuestion::import($sections_id, $question);
          }
       }

@@ -115,6 +115,12 @@ class PluginFormcreatorMultiSelectField extends PluginFormcreatorSelectField
          $tab_values = [$input];
       }
 
+      foreach($tab_values as $ind => $val)
+         $tab_values[$ind] = stripcslashes($val);
+
+      foreach($values as $ind => $val)
+         $values[$ind] = html_entity_decode($val, ENT_QUOTES);      
+
       foreach ($tab_values as $input) {
          if (in_array($input, $values)) {
             $value[] = addslashes($input);

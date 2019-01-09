@@ -49,13 +49,20 @@ class PluginFormcreatorActorField extends PluginFormcreatorField
          $value = $this->sanitizeValue($this->fields['default_values']);
       }
       $initialValue = [];
+      $initialId = [];
+
       foreach ($value as $id => $item) {
+         
+         $initialId[] = $id;
+
          $initialValue[] = [
             'id'     => $id,
             'text'   => $item,
          ];
       }
       $initialValue = json_encode($initialValue);
+      $initialId = json_encode($initialId);
+
       // Value needs to be non empty to allow execition of select2's initSelection
       if (version_compare(GLPI_VERSION, "9.3") >= 0) {
          echo '<select multiple
@@ -66,6 +73,7 @@ class PluginFormcreatorActorField extends PluginFormcreatorField
             $("#formcreator_field_' . $this->fields['id']. '").select2({
                tokenSeparators: [",", ";"],
                minimumInputLength: 0,
+               data: JSON.parse(\'' . $initialValue . '\'),
                ajax: {
                   url: "' . $CFG_GLPI['root_doc'] . '/ajax/getDropdownUsers.php",
                   type: "POST",
@@ -89,15 +97,14 @@ class PluginFormcreatorActorField extends PluginFormcreatorField
                   }).length === 0) {
                      return { id: term, text: term };
                   }
-               },
-               initSelection: function (element, callback) {
-                  callback(JSON.parse(\'' . $initialValue . '\'));
                }
             })
             $("#formcreator_field_' . $this->fields['id'] . '").on("change", function(e) {
                var selectedValues = $("#formcreator_field_' . $this->fields['id'] . '").val();
                formcreatorChangeValueOf (' . $this->fields['id']. ', selectedValues);
             });
+
+            $("#formcreator_field_' . $this->fields['id'] . '").val(  JSON.parse(\'' . $initialId . '\')  ).trigger("change");
          });');
       } else {
          echo '<input

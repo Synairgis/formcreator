@@ -203,7 +203,7 @@ class PluginFormcreatorFields
                   } else if ($decodedConditionField !== null && $decodedConditionField != $values[$condition['field']]) {
                      $value = !in_array($condition['value'], $decodedConditionField);
                   } else {
-                     $value = $condition['value'] != $values[$condition['field']];
+                     $value = $condition['value'] != html_entity_decode($values[$condition['field']]);
                   }
                }
                break;
@@ -222,7 +222,7 @@ class PluginFormcreatorFields
                   } else if ($decodedConditionField !== null && $decodedConditionField != $values[$condition['field']]) {
                      $value = in_array($condition['value'], $decodedConditionField);
                   } else {
-                     $value = $condition['value'] == $values[$condition['field']];
+                     $value = $condition['value'] == html_entity_decode($values[$condition['field']]);
                   }
                }
 

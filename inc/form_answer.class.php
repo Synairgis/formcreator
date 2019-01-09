@@ -713,9 +713,10 @@ class PluginFormcreatorForm_Answer extends CommonDBChild
             $groupIdValidator = 0;
          }
          $id = $this->add([
-            'entities_id'                 => isset($_SESSION['glpiactive_entity'])
-                                                ? $_SESSION['glpiactive_entity']
-                                                : $form->fields['entities_id'],
+            //'entities_id'                 => isset($_SESSION['glpiactive_entity'])
+            //                                    ? $_SESSION['glpiactive_entity']
+            //                                    : $form->fields['entities_id'],
+            'entities_id'                 => $form->fields['entities_id'],
             'is_recursive'                => $form->fields['is_recursive'],
             'plugin_formcreator_forms_id' => $data['formcreator_form'],
             'requester_id'                => isset($_SESSION['glpiID'])
@@ -974,9 +975,10 @@ class PluginFormcreatorForm_Answer extends CommonDBChild
 
       $file_data                 = [];
       $file_data["name"]         = Toolbox::addslashes_deep($form->getField('name'). ' - ' . $question->getField('name'));
-      $file_data["entities_id"]  = isset($_SESSION['glpiactive_entity'])
-                                    ? $_SESSION['glpiactive_entity']
-                                    : $form->getField('entities_id');
+      //$file_data["entities_id"]  = isset($_SESSION['glpiactive_entity'])
+       //                             ? $_SESSION['glpiactive_entity']
+        //                            : $form->getField('entities_id');
+      $file_data["entities_id"] = $form->getField('entities_id');
       $file_data["is_recursive"] = $form->getField('is_recursive');
       Document::moveDocument($file_data, $file);
 
@@ -1156,7 +1158,7 @@ class PluginFormcreatorForm_Answer extends CommonDBChild
             if ($disableRichText === false
                && (version_compare(PluginFormcreatorCommon::getGlpiVersion(), 9.4) >= 0 || $CFG_GLPI['use_rich_text']))
             {
-               $output .= '<h2>' . $question_line['section_name'] . '</h2>';
+               $output .= '<h2>' . Toolbox::addslashes_deep($question_line['section_name']) . '</h2>';
             } else {
                $output .= $eol . $question_line['section_name'] . $eol;
                $output .= '---------------------------------';

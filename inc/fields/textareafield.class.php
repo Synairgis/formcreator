@@ -70,8 +70,8 @@ class PluginFormcreatorTextareaField extends PluginFormcreatorTextField
 
       if (version_compare(PluginFormcreatorCommon::getGlpiVersion(), 9.4) >= 0 || $CFG_GLPI['use_rich_text']) {
          $input = str_replace("</p><p>", "\r\n", addslashes($input));
-         $input = str_replace("</p>", '', addslashes($input));
-         $input = str_replace("<p>", '', addslashes($input));
+         $input = str_replace("</p>", '', $input);
+         $input = str_replace("<p>", '', $input);
       }
       return $input;
    }
