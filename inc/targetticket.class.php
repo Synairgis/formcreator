@@ -1132,6 +1132,8 @@ EOS;
       if (version_compare(PluginFormcreatorCommon::getGlpiVersion(), 9.4) >= 0 || $CFG_GLPI['use_rich_text']) {
          $data['content'] = htmlentities($data['content'], ENT_NOQUOTES);
       }
+      
+      $data['content'] = str_replace("\r\n", '\r\n', $data['content']);
 
       // $data['content'] = Toolbox::addslashes_deep($data['content']);
       $data['_users_id_recipient'] = $_SESSION['glpiID'];
